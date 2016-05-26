@@ -5,7 +5,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["git@jamiestarke.com"]
   spec.description   = "A Ruby wrapper of the Atlantic.net API"
   spec.summary       = "A Ruby wrapper of the Atlantic.net API"
-  spec.homepage      = "http://github.com/jrstarke/atlanticnet"
+  spec.homepage      = "http://github.com/jrstarke/atlantic_net"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
