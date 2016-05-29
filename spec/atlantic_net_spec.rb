@@ -112,15 +112,31 @@ describe AtlanticNet do
       ]
     }
 
-    # it 'calls api_call with list-instances api' do
-    #   expect(subject).to receive(:api_call).with("list-instances").and_return(sample_api_response)
-    #   subject.list_instances
-    # end
+    context "instances have been set up" do
+      it 'calls api_call with list-instances and returns a list of instance hashes' do
+        allow(subject).to receive(:api_call).with("list-instances").and_return(sample_api_response)
+        instances = subject.list_instances
+        expect(instances).to eq expected_instances
+      end
+    end
+    
+    context "no instances exist yet" do
+      let(:sample_api_response) {
+        {
+          "list-instancesresponse" => {
+            "requestid" => "310db3f4-4250-4b2e-8e18-57b967a767ab", 
+            "instancesSet" => nil
+          }, 
+          "Timestamp"=>1464539924
+        }
+      }
+      let(:expected_instances) { [] }
 
-    it 'calls api_call with list-instances and returns a list of instance hashes' do
-      allow(subject).to receive(:api_call).with("list-instances").and_return(sample_api_response)
-      instances = subject.list_instances
-      expect(instances).to eq expected_instances
+      it 'calls api_call with list-instances and returns an empty array' do
+        allow(subject).to receive(:api_call).with("list-instances").and_return(sample_api_response)
+        instances = subject.list_instances
+        expect(instances).to eq expected_instances
+      end
     end
   end
 
@@ -495,6 +511,31 @@ describe AtlanticNet do
         expect(result).to eq plan_descriptions
       end
     end
+
+    context 'No plans exist for options' do
+      let(:plan_name) { "GO" }
+      let(:platform) { "linux" }
+
+      let(:sample_api_response) {
+      {
+        "Timestamp" => 1439932362,
+        "describe-planresponse" => {
+          "plans" => [],
+          "requestid" => "4aae48ae-af7b-4bbd-9309-58aadbfd02d3"
+        }
+      }
+    }
+    let(:plan_descriptions) {
+      []
+    }
+      it 'calls api_call with describe-plan plan_name and platform and returns an empty array' do
+        expect(subject).to receive(:api_call)
+          .with("describe-plan", {plan_name: plan_name, platform: platform})
+          .and_return(sample_api_response)
+        result = subject.describe_plans({plan_name: plan_name, platform: platform})
+        expect(result).to eq plan_descriptions
+      end
+    end
   end
 
   describe "#list_ssh_keys" do
@@ -523,12 +564,35 @@ describe AtlanticNet do
       ]
     }
 
-    it 'calls api_call with list-sshkeys and returns a list of ssh key hashes' do
-      expect(subject).to receive(:api_call)
-        .with("list-sshkeys")
-        .and_return(sample_api_response)
-      result = subject.list_ssh_keys
-      expect(result).to eq ssh_keys
+    context 'SSH Keys on atlantic.net have been set' do
+      it 'calls api_call with list-sshkeys and returns a list of ssh key hashes' do
+        expect(subject).to receive(:api_call)
+          .with("list-sshkeys")
+          .and_return(sample_api_response)
+        result = subject.list_ssh_keys
+        expect(result).to eq ssh_keys
+      end
+    end
+
+    context 'No SSH Keys setup' do
+      let(:sample_api_response) {
+        {
+          "list-sshkeysresponse" => {
+            "requestid" => "ba77409d-e74a-4d86-a6b1-847ac2adb6dd", 
+            "KeysSet" => nil
+          }, 
+          "Timestamp"=>1464539384
+        }
+      }
+      let(:ssh_keys) { [] }
+
+      it 'calls api_call with list-sshkeys and returns a nil KeysSet' do
+        expect(subject).to receive(:api_call)
+          .with("list-sshkeys")
+          .and_return(sample_api_response)
+        result = subject.list_ssh_keys
+        expect(result).to eq ssh_keys
+      end
     end
   end
 

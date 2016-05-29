@@ -79,7 +79,12 @@ class AtlanticNet
   #
   def list_instances
     response = api_call('list-instances')
-    response['list-instancesresponse']['instancesSet'].values
+    instances = response['list-instancesresponse']['instancesSet']
+    if instances
+      instances.values
+    else
+      []
+    end
   end
 
   # Restart a specific cloud server.
@@ -170,6 +175,9 @@ class AtlanticNet
   #
   # @return [Array<Hash>] A array of image descriptions
   #
+  # @raise [AtlanticNetException] if the image_id specified in the options does not
+  #   match an image id on Atlantic.net
+  #
   def describe_images(options={})
     args = {}
 
@@ -198,7 +206,12 @@ class AtlanticNet
       response = api_call('describe-plan',options)
     end
 
-    response["describe-planresponse"]["plans"].values
+    plans = response["describe-planresponse"]["plans"]
+    if plans.respond_to?(:values)
+      plans.values
+    else
+      []
+    end
   end
 
   # Retrieve the details of all SSH Keys associated with the account
@@ -207,7 +220,12 @@ class AtlanticNet
   #
   def list_ssh_keys
     response = api_call('list-sshkeys')
-    response["list-sshkeysresponse"]["KeysSet"].values
+    keys_set = response["list-sshkeysresponse"]["KeysSet"]
+    if keys_set
+      keys_set.values
+    else
+      []
+    end
   end
 
 
