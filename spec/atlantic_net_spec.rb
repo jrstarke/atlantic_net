@@ -142,18 +142,6 @@ describe AtlanticNet do
 
   describe '#reboot_instance' do
     let(:instance_id) { "234" }
-    let(:sample_api_response) {
-      {
-        "Timestamp" => 1440171938,
-        "reboot-instanceresponse" => {
-          "requestid" => "6723430f-c416-46de-a03d-2d2ea38d3af7",
-          "return" => {
-            "Message" => "Successfully queued for reboot",
-            "value" => "true"
-          }
-        }
-      }
-    }
     let(:expected_return) {
       {
         "Message" => "Successfully queued for reboot",
@@ -161,27 +149,90 @@ describe AtlanticNet do
       }
     }
 
-    context "default options" do
-      let(:reboot_type) { "soft" }
+    context "standard documented response" do
+      let(:sample_api_response) {
+        {
+          "Timestamp" => 1440171938,
+          "reboot-instanceresponse" => {
+            "requestid" => "6723430f-c416-46de-a03d-2d2ea38d3af7",
+            "return" => {
+              "Message" => "Successfully queued for reboot",
+              "value" => "true"
+            }
+          }
+        }
+      }
+
+      context "default options" do
+        let(:reboot_type) { "soft" }
+  
+        it 'calls api_call with reboot-instance and instance_id' do
+          expect(subject).to receive(:api_call)
+            .with("reboot-instance", {instanceid: instance_id, reboottype: reboot_type})
+            .and_return(sample_api_response)
+          result = subject.reboot_instance(instance_id)
+          expect(result).to eq expected_return
+        end
+      end
       
-      it 'calls api_call with reboot-instance and instance_id' do
-        expect(subject).to receive(:api_call)
-          .with("reboot-instance", {instanceid: instance_id, reboottype: reboot_type})
-          .and_return(sample_api_response)
-        result = subject.reboot_instance(instance_id)
-        expect(result).to eq expected_return
+      context "reboot_type override" do
+        let(:reboot_type) { "hard" }
+
+        it 'calls api_call with reboot-instance, instance_id and reboot_type' do
+          expect(subject).to receive(:api_call)
+            .with("reboot-instance", {instanceid: instance_id, reboottype: reboot_type})
+            .and_return(sample_api_response)
+          result = subject.reboot_instance(instance_id, reboot_type: reboot_type)
+          expect(result).to eq expected_return
+        end
       end
     end
-    
-    context "reboot_type override" do
-      let(:reboot_type) { "hard" }
 
-      it 'calls api_call with reboot-instance, instance_id and reboot_type' do
-        expect(subject).to receive(:api_call)
-          .with("reboot-instance", {instanceid: instance_id, reboottype: reboot_type})
-          .and_return(sample_api_response)
-        result = subject.reboot_instance(instance_id, reboot_type: reboot_type)
-        expect(result).to eq expected_return
+    context "actual response" do
+      let(:sample_api_response) {
+        {
+          "reboot-instanceresponse" => {
+            "requestid" => "6723430f-c416-46de-a03d-2d2ea38d3af7",
+            "instancesSet" => {
+              "item" => {
+                "value" => "true",
+                "Message" => "Successfully queued for  reboot",
+                "InstanceId" => "234"
+              }
+            }
+          }, "Timestamp" => 1440171938
+        }
+      }
+      let(:expected_return) {
+        {
+          "Message" => "Successfully queued for  reboot",
+          "value" => "true",
+          "InstanceId" => "234"
+        }
+      }
+
+      context "default options" do
+        let(:reboot_type) { "soft" }
+        
+        it 'calls api_call with reboot-instance and instance_id' do
+          expect(subject).to receive(:api_call)
+            .with("reboot-instance", {instanceid: instance_id, reboottype: reboot_type})
+            .and_return(sample_api_response)
+          result = subject.reboot_instance(instance_id)
+          expect(result).to eq expected_return
+        end
+      end
+      
+      context "reboot_type override" do
+        let(:reboot_type) { "hard" }
+
+        it 'calls api_call with reboot-instance, instance_id and reboot_type' do
+          expect(subject).to receive(:api_call)
+            .with("reboot-instance", {instanceid: instance_id, reboottype: reboot_type})
+            .and_return(sample_api_response)
+          result = subject.reboot_instance(instance_id, reboot_type: reboot_type)
+          expect(result).to eq expected_return
+        end
       end
     end
   end

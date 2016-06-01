@@ -101,7 +101,12 @@ class AtlanticNet
   def reboot_instance(instance_id, options={})
     reboot_type = options[:reboot_type] || "soft"
     response = api_call('reboot-instance', {instanceid: instance_id, reboottype: reboot_type})
-    response["reboot-instanceresponse"]["return"]
+    reboot_response = response["reboot-instanceresponse"]
+    if reboot_response.has_key? "return"
+      response["reboot-instanceresponse"]["return"]
+    else
+      response["reboot-instanceresponse"]["instancesSet"]["item"]
+    end
   end
 
   # Describe a specific cloud server.
