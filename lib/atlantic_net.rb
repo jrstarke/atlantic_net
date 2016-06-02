@@ -1,7 +1,6 @@
 require 'base64'
 require 'openssl'
 require 'securerandom'
-require 'pry'
 require 'json'
 
 class AtlanticNetException < StandardError
